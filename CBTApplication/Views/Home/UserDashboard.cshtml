@@ -1,0 +1,197 @@
+﻿@model CBTApplication.Controllers.HomeController.UserDashboardViewModel
+
+@{
+    ViewData["Title"] = "User Dashboard";
+}
+
+<div class="container mx-auto p-4 md:p-8 bg-gray-100 rounded-xl shadow-lg mt-10">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Welcome, @User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value</h1>
+        <br />
+        <br />
+        <br />
+     
+
+
+
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Available Tests</h2>
+            @if (Model.AvailableTests.Any())
+            {
+                <div class="table-responsive bg-white rounded-lg shadow-sm">
+                    <table class="table table-striped mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 px-4 text-start">
+                                    <span>Test Name</span>
+                                </th>
+                                <th class="py-3 px-4 text-center">
+                                    <span>Duration</span>
+                                </th>
+                                <th class="py-3 px-4 text-center">
+                                    <span>Questions</span>
+                                </th>
+                                @* <th class="py-3 px-4 text-center">
+                                    <span>Date</span>
+                                </th> *@
+                                <th class="py-3 px-4 text-center">
+                                    <span></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var test in Model.AvailableTests)
+                            {
+                                <tr>
+                                    <td class="py-4 px-4 fw-bold">
+                                        @test.TestName
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        @test.DurationMinutes min
+
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        @test.NumberOfQuestions
+                                    </td>
+                                    @* <td class="py-4 px-4 text-center">
+                                        @test.DateCreated
+                                    </td> *@
+                                    <td class="py-4 px-4 text-end">
+
+                                        @if (Model.PastTestAttempts.Any(ta => ta.TestId == test.Id && ta.IsCompleted))
+                                        {
+                                            <i class="text-muted">Completed</i>
+                                        }
+                                        else
+                                        {
+                                            @if (@test.CurrentQuestionIndex != 0){
+
+                                            <a asp-controller="Home" asp-action="StartTest" asp-route-testId="@test.Id" class="btn btn-dark">
+                                                Resume
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                            <a asp-controller="Home" asp-action="StartTest" asp-route-testId="@test.Id" class="btn btn-dark">
+                                                Start
+                                                </a>
+                                                
+                                            }
+                                        }
+
+
+                                    </td>
+                                </tr>
+                            }
+
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-muted p-4 align-content-center">
+                    <i>You have not completed any tests yet.</i>
+                </div>
+            }
+        </div>
+
+        <br />
+        <br />
+
+
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Past Test Attempts</h2>
+            @if (Model.PastTestAttempts.Any())
+            {
+                <div class="table-responsive bg-white rounded-lg shadow-sm">
+                    <table class="table table-striped mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 px-4 text-start">
+                                    <span>Test Name</span>
+                                </th>
+                                <th class="py-3 px-4 text-center">
+                                    <span>Score</span>
+                                </th>
+                                 <th class="py-3 px-4 text-center">
+                                    <span>Date Submitted</span>
+                                </th> 
+                                <th class="py-3 px-4 text-center">
+                                    <span></span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var attempt in Model.PastTestAttempts)
+                            {
+                                <tr>
+                                    <td class="py-4 px-4 fw-bold">
+                                        @attempt.Test?.TestName
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        @if (attempt.Score.HasValue && attempt.Test?.NumberOfQuestions > 0)
+                                        {
+                                            var percentage = (Convert.ToDouble(attempt.Score) / attempt.Test.NumberOfQuestions) * 100;
+                                            var scoreColor = percentage >= 50.0 ? "text-success" : "text-danger";
+
+                                            <span class="fw-bold @scoreColor">
+                                                @Math.Round(percentage, 2)%
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        @if (attempt.EndTime.HasValue)
+                                        {
+                                            <span class="text-muted">@attempt.EndTime.Value.ToLocalTime().ToString("g")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td class="py-4 px-4 text-end">
+                                        <a asp-action="AdminViewTestResults" asp-route-attemptId="@attempt.Id" class="btn btn-dark">
+                                            View Results
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-muted p-4 align-content-center">
+                    <i>You have not completed any tests yet.</i>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

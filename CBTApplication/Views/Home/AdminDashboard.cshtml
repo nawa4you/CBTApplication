@@ -1,0 +1,208 @@
+﻿@model CBTApplication.Controllers.HomeController.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    // For demo, you may want to pass lists of students, tests, departments to the view via ViewBag or ViewData
+    var students = ViewBag.Students as List<string> ?? new List<string>();
+    var tests = ViewBag.Tests as List<string> ?? new List<string>();
+    var departments = ViewBag.Departments as List<string> ?? new List<string>();
+}
+
+<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-4">Admin Dashboard</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="alert alert-info">@ViewBag.Message</div>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5 justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Quick Actions</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-action="CreateTest" class="btn btn-dark">
+                            <i class="bi bi-plus-circle"></i> New Test
+                        </a>
+                        <a asp-action="ManageTests" class="btn btn-dark">
+                            <i class="bi bi-list-check"></i> Manage Tests
+                        </a>
+                        <a asp-action="ManageUsers" class="btn btn-dark">
+                            <i class="bi bi-people"></i> Manage Users
+                        </a>
+                        <a asp-action="ManageQuestionBanks" class="btn btn-dark">
+                            <i class="bi bi-journal-text"></i> Question Banks
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Funnel - Initially hidden -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <form id="filterForm" class="card card-body shadow-sm mb-0" style="display: none;">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Student</label>
+                        <input type="text" class="form-control" id="filterStudent" placeholder="Student name">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Test</label>
+                        <input type="text" class="form-control" id="filterTest" placeholder="Test name">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Department</label>
+                        <input type="text" class="form-control" id="filterDepartment" placeholder="Department">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1">Before Date</label>
+                        <input type="date" class="form-control" id="filterDate">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Recent Test Attempts</h5>
+                        <button type="button" 
+                                id="toggleFilter" 
+                                class="btn btn-link text-dark p-0" 
+                                title="Toggle Filters">
+                            <i class="bi bi-funnel-fill fs-5"></i>
+                        </button>
+                    </div>
+                    @if (Model.CompletedTestAttempts.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="attemptsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Test</th>
+                                        <th>Department</th>
+                                        <th>Score</th>
+                                        <th>Submit Date</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var attempt in Model.CompletedTestAttempts)
+                                    {
+                                        <tr>
+                                            <td class="student">@attempt.User?.Name</td>
+                                            <td class="test">@attempt.Test?.TestName</td>
+                                            <!-- <td class="department"></td> -->
+                                            <td>
+                                                @if (attempt.Score.HasValue)
+                                                {
+                                                    @if (attempt.Score * 100 > 40){
+                                                        <span class="badge bg-success">@attempt.Score / @attempt.Test?.NumberOfQuestions</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger">@attempt.Score / @attempt.Test?.NumberOfQuestions</span>
+                                                        
+                                                    }
+                                                }
+                                            </td>
+                                            <td class="date">@attempt.EndTime?.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                <a asp-action="AdminViewTestResults" 
+                                                   asp-route-attemptId="@attempt.Id" 
+                                                   class="btn btn-sm btn-outline-dark">
+                                                    View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No completed test attempts to display.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterForm = document.getElementById('filterForm');
+            const toggleFilter = document.getElementById('toggleFilter');
+            const table = document.getElementById('attemptsTable');
+            const rows = table ? table.querySelectorAll('tbody tr') : [];
+
+            // Toggle filter form visibility
+            toggleFilter.addEventListener('click', function() {
+                const isHidden = filterForm.style.display === 'none';
+                filterForm.style.display = isHidden ? 'block' : 'none';
+                // Rotate icon when active
+                this.querySelector('i').style.transform = isHidden ? 'rotate(180deg)' : '';
+                this.classList.toggle('active', isHidden);
+            });
+
+            function filterRows() {
+                const student = document.getElementById('filterStudent').value.toLowerCase();
+                const test = document.getElementById('filterTest').value.toLowerCase();
+                const department = document.getElementById('filterDepartment').value.toLowerCase();
+                const date = document.getElementById('filterDate').value;
+
+                rows.forEach(row => {
+                    const studentCell = row.querySelector('.student')?.textContent.toLowerCase() || '';
+                    const testCell = row.querySelector('.test')?.textContent.toLowerCase() || '';
+                    const departmentCell = row.querySelector('.department')?.textContent.toLowerCase() || '';
+                    const dateCell = row.querySelector('.date')?.textContent || '';
+
+                    let show = true;
+                    if (student && !studentCell.includes(student)) show = false;
+                    if (test && !testCell.includes(test)) show = false;
+                    if (department && !departmentCell.includes(department)) show = false;
+                    if (date && dateCell > date) show = false;
+
+                    row.style.display = show ? '' : 'none';
+                });
+            }
+
+            filterForm.addEventListener('input', filterRows);
+        });
+    </script>
+
+    <style>
+        #toggleFilter {
+            transition: all 0.3s ease;
+        }
+
+        #toggleFilter.active {
+            color: #4f46e5 !important;
+        }
+
+        #toggleFilter i {
+            transition: transform 0.3s ease;
+        }
+
+        #filterForm {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+    </style>
+}
+

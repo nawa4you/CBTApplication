@@ -1,0 +1,38 @@
+﻿@model CBTApplication.Models.QuestionBank
+@{
+    ViewData["Title"] = "Create Question Bank";
+}
+
+<div class="container mt-4">
+    <h2>Create Question Bank</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="CreateQuestionBank">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <br />
+                <div class="form-group">
+                    <i class="text-info">Once created, Add Questions form the question bank View.</i>
+                </div>
+
+                <div class="form-group mt-3">
+                    <input type="submit" value="Create" class="btn btn-dark" />
+                    <a asp-action="ManageQuestionBanks" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,131 @@
+﻿@* @model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "My Registrations";
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    bool hasActionsColumn = ViewBag.HasActionsColumn ?? false; 
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-primary">
+        @if (isAdmin)
+        {
+            <span>All Hostel Registrations</span>
+        }
+        else
+        {
+            <span>My Hostel Registrations</span>
+        }
+    </h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            No registrations found.
+            @if (!isAdmin)
+            {
+                <a asp-controller="Home" asp-action="RegisterHostel" class="alert-link">Register for a hostel</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded-lg p-3">
+            <table class="table table-striped table-bordered" style="width:100%">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        @if (isAdmin)
+                        {
+                            <th>User Name</th>
+                        }
+                        <th>Hostel Name</th>
+                        <th>Room Number</th>
+                        <th>Room Type</th>
+                        <th>Registered At</th>
+                        <th>Status</th>
+                        @if (hasActionsColumn)     
+                        {
+                            <th style="width: 150px;">Actions</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var registration in Model)
+                    {
+                        <tr>
+                            @if (isAdmin)
+                            {
+                                <td>@registration.UserName</td>
+                            }
+                            <td>@registration.HostelName</td>
+                            <td>@registration.RoomNumber</td>
+                            <td>@registration.RoomType</td>
+                            <td>@registration.RegisteredAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                @if (registration.IsApproved)
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+                            @if (hasActionsColumn) 
+                            {
+                                <td>
+                                    @if (isAdmin)
+                                    {
+                                        
+                                        @if (!registration.IsApproved)
+                                        {
+                                            <form asp-action="ApproveRegistration" asp-controller="Home" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to APPROVE this registration? Other pending requests for this user will be deleted.');">
+                                                <input type="hidden" name="id" value="@registration.Id" />
+                                                <button type="submit" class="btn btn-success btn-sm me-1" title="Approve"><i class="bi bi-check-circle"></i> Approve</button>
+                                            </form>
+                                            
+                                        }
+                                        <a asp-action="Edit" asp-controller="Home" asp-route-id="@registration.Id" class="btn btn-info btn-sm mt-1" title="Edit"> Edit</a>
+                                        <form asp-action="Delete" asp-controller="Home" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to DELETE this registration?');">
+                                            <input type="hidden" name="id" value="@registration.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm mt-1" title="Delete"><i class="bi bi-trash"></i> Delete</button>
+                                        </form>
+                                    }
+                                   
+                                    
+                                        @if (!registration.IsApproved && !isAdmin)
+                                        {
+                                            <form asp-action="Delete" asp-controller="Home" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this pending registration request?');">
+                                                <input type="hidden" name="id" value="@registration.Id" />
+                                                <button type="submit" class="btn btn-secondary btn-sm" title="Cancel Request"><i class="bi bi-x-circle"></i> Cancel</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                           
+                                        }
+                                    
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div> *@

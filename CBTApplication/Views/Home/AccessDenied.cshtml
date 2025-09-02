@@ -1,0 +1,26 @@
+﻿@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container mt-5 text-center">
+    <h1 class="text-danger">Access Denied</h1>
+
+
+    @if (User.IsInRole("User"))
+    {
+
+
+        <p>Please <a asp-controller="Home" asp-action="Login">log in</a> with an authorized account</p>
+    }
+
+
+    @if (User.IsInRole("Admin"))
+    {
+
+        <p>Please <a asp-controller="Home" asp-action="Login">log in</a> as student to take this action</p>
+
+    }
+
+</div>

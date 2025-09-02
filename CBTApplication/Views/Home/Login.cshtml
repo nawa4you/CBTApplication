@@ -1,0 +1,44 @@
+﻿@model CBTApplication.Models.LoginViewModel
+
+
+
+
+
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 400px;">
+        <h2 class="text-center mb-4">Login</h2>
+        <form asp-action="Login" method="post" novalidate>
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control border border-dark" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control border border-dark" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            <div class="form-group form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label class="form-check-label" asp-for="RememberMe">Remember me</label>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-dark text-white fw-bold rounded-pill">Login</button>
+            </div>
+            <div class="d-grid mt-2">
+                
+                <a asp-controller="Home" asp-action="RegisterUser" class="btn btn-white text-black border-dark fw-bold rounded-pill">Dont Have an account?</a>
+            </div>
+            <div class="text-center mt-3">
+                <a asp-controller="Home" asp-action="ForgotPassword" class="btn btn-link text-black">Forgot Password?</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

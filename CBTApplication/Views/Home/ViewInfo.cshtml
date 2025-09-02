@@ -1,0 +1,310 @@
+﻿@model CBTApplication.Models.ChangePasswordViewModel
+@{
+    ViewData["Title"] = "My Info";
+    var userClaims = User.Claims.ToDictionary(c => c.Type, c => c.Value);
+    var currentUserEmail = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+     
+}
+
+
+
+
+
+
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-black">My Information</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm rounded-lg mx-auto mb-5" style="max-width: 600px;">
+        <div class="card-header bg-black text-white text-center rounded-top-lg py-3">
+            <h5 class="mb-0">User Details</h5>
+        </div>
+        <div class="card-body p-4">
+            <dl class="row">
+                @if (userClaims != null)
+                {
+                    <dt class="col-sm-4">Name:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.Name, "N/A")</dd>
+
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.NameIdentifier, "N/A")</dd>
+
+                    <dt class="col-sm-4">Role:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.Role, "N/A")</dd>
+
+                    <dt class="col-sm-4">Phone Number:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.MobilePhone, "N/A")</dd>
+
+                    <dt class="col-sm-4">Gender:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.Gender, "N/A")</dd>
+
+
+                    <dt class="col-sm-4">Level:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.UserData, "N/A")</dd>
+                   
+                    
+                    <dt class="col-sm-4">Mat No:</dt>
+                    <dd class="col-sm-8">@userClaims.GetValueOrDefault(System.Security.Claims.ClaimTypes.SerialNumber, "N/A")</dd>
+
+
+                    <dt class="col-sm-4">Department:</dt>
+                                <dd class="col-sm-8">
+                                    @(User.FindFirst("Department")?.Value ?? "N/A")
+                                </dd> 
+
+
+
+                               
+                
+                }
+                else
+                {
+                    <p class="text-muted text-center">No user information available.</p>
+                }
+            </dl>
+        </div>
+        <div class="card-footer text-center rounded-bottom-lg py-3">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back</a>
+        </div>
+    </div>
+
+     @* --- Change Password Section --- *@
+    <div class="card shadow-sm rounded-lg mx-auto" style="max-width: 600px;">
+        <div class="card-header bg-transparent text-dark text-center rounded-top-lg py-3">
+            <h5 class="mb-0 text-black-50">Change Password</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="ChangePassword" asp-controller="Home" method="post" id="changePasswordForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="CurrentPassword" class="form-label"></label>
+                    <input asp-for="CurrentPassword" name="CurrentPassword" class="form-control" type="password" />
+                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NewPassword" class="form-label"></label>
+                    <input asp-for="NewPassword" class="form-control" type="password" />
+                    <span asp-validation-for="NewPassword" name="NewPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmNewPassword" class="form-label"></label>
+                    <input asp-for="ConfirmNewPassword" name="ConfirmNewPassword" class="form-control" type="password" />
+                    <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger btn-lg">Change Password</button>
+                </div>
+            </form>
+
+
+
+
+            <div class="text-center mt-3">
+                <a asp-controller="Home" asp-action="ForgotPassword" class="btn btn-link text-muted">Forgot Password?</a>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const changePasswordForm = document.getElementById('changePasswordForm');
+            const passwordInputs = changePasswordForm.querySelectorAll('input[type="password"]');
+
+            passwordInputs.forEach((input, index) => {
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        if (index < passwordInputs.length - 1) {
+                            passwordInputs[index + 1].focus();
+                        } else {
+                            changePasswordForm.submit();
+                        }
+                    }
+                });
+            });
+
+
+            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+            const confirmResetModal = new bootstrap.Modal(document.getElementById('confirmResetModal'));
+            const confirmResetBtn = document.getElementById('confirmResetBtn');
+
+
+            const currentUserEmail = '@Html.Raw(currentUserEmail)';
+
+
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 600px;">
+        <h2 class="text-center mb-4 text-black">My Information</h2>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">@TempData["SuccessMessage"]</span>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        <div class="card-body p-4">
+            <h5 class="card-title text-center text-black">User Details</h5>
+            <hr class="my-4" />
+
+            <dl class="row">
+                <dt class="col-sm-4 text-dark">Name:</dt>
+                <dd class="col-sm-8">@userClaims["Name"]</dd>
+
+                <dt class="col-sm-4 text-dark">Email:</dt>
+                <dd class="col-sm-8">@userClaims["Email"]</dd>
+
+                <dt class="col-sm-4 text-dark">Phone Number:</dt>
+                <dd class="col-sm-8">@userClaims["PhoneNumber"]</dd>
+
+                <dt class="col-sm-4 text-dark">Gender:</dt>
+                <dd class="col-sm-8">@userClaims["Gender"]</dd>
+
+                <dt class="col-sm-4 text-dark">Level:</dt>
+                <dd class="col-sm-8">@userClaims["Level"]</dd>
+
+                <dt class="col-sm-4 text-dark">Unique ID:</dt>
+                <dd class="col-sm-8">@userClaims["UniqueId"]</dd>
+
+                <dt class="col-sm-4 text-dark">Role:</dt>
+                <dd class="col-sm-8">@userClaims["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]</dd>
+            </dl>
+        </div>
+        <div class="card-footer bg-white border-0 text-center">
+            <button type="button" class="btn btn-dark text-white fw-bold rounded-pill" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="ChangePassword" method="post" id="changePasswordForm">
+                    <div class="form-group mb-3">
+                        <label asp-for="CurrentPassword" class="form-label"></label>
+                        <input asp-for="CurrentPassword" type="password" class="form-control border border-dark" />
+                        <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="NewPassword" class="form-label"></label>
+                        <input asp-for="NewPassword" type="password" class="form-control border border-dark" />
+                        <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="ConfirmNewPassword" class="form-label"></label>
+                        <input asp-for="ConfirmNewPassword" type="password" class="form-control border border-dark" />
+                        <span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-dark text-white fw-bold rounded-pill">Update Password</button>
+                    </div>
+                    <div class="d-grid mt-2">
+                        <a asp-controller="Home" asp-action="ForgotPassword" class="btn btn-link text-black">Forgot Password?</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@

@@ -1,0 +1,71 @@
+﻿@model CBTApplication.Models.CreateTestViewModel
+
+@{
+    ViewData["Title"] = "Create Test";
+}
+<div class="container mt-4">
+    <h2>Create New Test</h2>
+    <hr />
+
+    <form asp-action="CreateTest" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="TestName" class="control-label"></label>
+            <input asp-for="TestName" class="form-control" />
+            <span asp-validation-for="TestName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DurationMinutes" class="control-label"></label>
+            <input asp-for="DurationMinutes" class="form-control" />
+            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="NumberOfQuestions" class="control-label"></label>
+            <input asp-for="NumberOfQuestions" class="form-control" />
+            <span asp-validation-for="NumberOfQuestions" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="QuestionBankId" class="control-label"></label>
+            <select asp-for="QuestionBankId" class="form-control" asp-items="Model.QuestionBanks">
+                <option value="">-- Select Question Bank --</option>
+            </select>
+            <span asp-validation-for="QuestionBankId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Departments</label>
+            <div>
+                @foreach (var dept in Model.Departments)
+                {
+                    <div class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="DepartmentIds"
+                               value="@dept.Value"
+                               id="dept_@dept.Value"
+                               @(Model.DepartmentIds != null && Model.DepartmentIds.Contains(int.Parse(dept.Value)) ? "checked" : "") />
+                        <label class="form-check-label" for="dept_@dept.Value">@dept.Text</label>
+                    </div>
+                }
+            </div>
+            <span asp-validation-for="DepartmentIds" class="text-danger"></span>
+            <small class="form-text text-muted">Select one or more departments</small>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <a asp-action="ManageTests" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

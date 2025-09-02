@@ -1,0 +1,204 @@
+﻿@model CBTApplication.Models.TakeTestViewModel
+@using System.Text.Json;
+@using CBTApplication.Controllers;
+
+@{
+    ViewData["Title"] = $"Take Test: {Model.TestName}";
+    var currentQuestion = Model.Questions.FirstOrDefault();
+    bool isFirstQuestion = Model.CurrentQuestionIndex == 0;
+    bool isLastQuestion = Model.CurrentQuestionIndex == (Model.NumberOfQuestions - 1);
+}
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmationModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-lg rounded-lg">
+                <div class="card-header bg-primary text-white text-center rounded-top-lg py-3">
+                    <h4 class="mb-0">@Model.TestName</h4>
+                    <h5 class="mb-0">Question @(Model.CurrentQuestionIndex + 1) of @Model.NumberOfQuestions</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="text-secondary">Time Remaining: <span id="timer" class="badge bg-danger fs-5"></span></h5>
+                        <button type="button" id="forceSubmitButton" class="btn btn-danger btn-sm">Submit Test</button>
+                    </div>
+
+                    @if (currentQuestion != null)
+                    {
+                        <form id="questionForm" asp-action="TakeTest" method="post" class="needs-validation" novalidate>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="TestAttemptId" value="@Model.TestAttemptId" />
+                            <input type="hidden" name="TestId" value="@Model.TestId" />
+                            <input type="hidden" name="TestName" value="@Model.TestName" />
+                            <input type="hidden" name="CurrentQuestionIndex" value="@Model.CurrentQuestionIndex" />
+                            <input type="hidden" name="NumberOfQuestions" value="@Model.NumberOfQuestions" />
+                            <input type="hidden" name="DurationMinutes" value="@Model.DurationMinutes" />
+                            <input type="hidden" id="actionInput" name="action" value="" />
+
+                            <!-- Only include the current question -->
+                            <input type="hidden" name="Questions[0].QuestionId" value="@currentQuestion.QuestionId" />
+                            <input type="hidden" name="Questions[0].QuestionText" value="@currentQuestion.QuestionText" />
+                            <input type="hidden" name="Questions[0].OptionA" value="@currentQuestion.OptionA" />
+                            <input type="hidden" name="Questions[0].OptionB" value="@currentQuestion.OptionB" />
+                            <input type="hidden" name="Questions[0].OptionC" value="@currentQuestion.OptionC" />
+                            <input type="hidden" name="Questions[0].OptionD" value="@currentQuestion.OptionD" />
+                            <input type="hidden" name="Questions[0].SelectedOption" value="@currentQuestion.SelectedOption" />
+
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">@currentQuestion.QuestionText</h6>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="SelectedOption" id="optionA" value="A" @(currentQuestion.SelectedOption == "A" ? "checked" : "")>
+                                <label class="form-check-label" for="optionA">
+                                    A. @currentQuestion.OptionA
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="SelectedOption" id="optionB" value="B" @(currentQuestion.SelectedOption == "B" ? "checked" : "")>
+                                <label class="form-check-label" for="optionB">
+                                    B. @currentQuestion.OptionB
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="SelectedOption" id="optionC" value="C" @(currentQuestion.SelectedOption == "C" ? "checked" : "")>
+                                <label class="form-check-label" for="optionC">
+                                    C. @currentQuestion.OptionC
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="SelectedOption" id="optionD" value="D" @(currentQuestion.SelectedOption == "D" ? "checked" : "")>
+                                <label class="form-check-label" for="optionD">
+                                    D. @currentQuestion.OptionD
+                                </label>
+                            </div>
+
+                            <div class="mt-5 d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" onclick="submitForm('previous')" @(isFirstQuestion ? "disabled" : "")>Previous</button>
+                                @if (isLastQuestion)
+                                {
+                                    <button type="button" class="btn btn-success" onclick="submitForm('submit')">Submit Test</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-primary" onclick="submitForm('next')">Next</button>
+                                }
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">No question found for this index.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Modal logic
+        function showModal(title, body, isConfirmation = false, onConfirm = null) {
+            const modalTitle = document.getElementById('confirmationModalLabel');
+            const modalBody = document.getElementById('confirmationModalBody');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+
+            modalTitle.textContent = title;
+            modalBody.textContent = body;
+            if (isConfirmation) {
+                confirmBtn.style.display = 'block';
+                confirmBtn.onclick = () => {
+                    if (onConfirm) {
+                        onConfirm();
+                    }
+                    modal.hide();
+                };
+            } else {
+                confirmBtn.style.display = 'none';
+            }
+
+            modal.show();
+        }
+
+        // Timer logic
+        var timeRemaining = @Model.TimeRemainingSeconds;
+        var timerElement = document.getElementById('timer');
+        var timerInterval;
+
+        function updateTimer() {
+            var minutes = Math.floor(timeRemaining / 60);
+            var seconds = timeRemaining % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                showModal("Time's Up!", "Time's up! Your test will be submitted automatically.");
+                document.getElementById('actionInput').value = 'submit';
+                document.getElementById('questionForm').submit();
+            }
+            timeRemaining--;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (timerElement) {
+                timerInterval = setInterval(updateTimer, 1000);
+                updateTimer();
+            }
+        });
+
+        window.addEventListener('beforeunload', function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+
+        window.history.pushState(null, '', window.location.href);
+        window.addEventListener('popstate', function() {
+            window.history.pushState(null, '', window.location.href);
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            var submitBtn = document.getElementById('questionForm').querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        function submitForm(action) {
+            document.getElementById('actionInput').value = action;
+            var form = document.getElementById('questionForm');
+
+            if (action === 'submit') {
+                showModal('Confirm Submission', 'Are you sure you want to submit the test now? You cannot make further changes.', true, function() {
+                    document.getElementById('actionInput').value = action;
+                    form.submit();
+                });
+            } else {
+                form.submit();
+            }
+        }
+
+        document.getElementById('forceSubmitButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            submitForm('submit');
+        });
+    </script>
+}

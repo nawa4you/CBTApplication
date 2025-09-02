@@ -1,0 +1,87 @@
+﻿@model List<CBTApplication.Models.User>
+@{
+    ViewData["Title"] = "Manage Users";
+    var serial = 1;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center text-black">Manage Users</h2>
+
+    <div class="table-responsive shadow-sm rounded-lg p-3">
+        <table id="usersTable" class="table table-striped table-bordered" style="width:100%">
+            <thead class="bg-dark text-white">
+                <tr>
+
+                    <th>S/N</th>
+                    <th>Name</th>
+
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Gender</th>
+                    <th>Level</th>
+                    <th>Unique ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+
+
+                    <tr>
+
+
+
+
+
+
+                        <td>@serial</td>
+                        <td>@user.Name</td>
+
+                        <td>@user.Email</td>
+                        <td>@user.Role</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.Gender</td>
+                        <td>@user.Level</td>
+                        <td>@user.UniqueId</td>
+                    </tr>
+                    serial++;
+
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+            crossorigin="anonymous"> </script>
+
+
+    <link href="https://cdn.datatables.net/v/dt/dt-2.3.2/datatables.min.css" rel="stylesheet" integrity="sha384-d76uxpdVr9QyCSR9vVSYdOAZeRzNUN8A4JVqUHBVXyGxZ+oOfrZVHC/1Y58mhyNg" crossorigin="anonymous">
+
+    <script src="https://cdn.datatables.net/v/dt/dt-2.3.2/datatables.min.js" integrity="sha384-JRUjeYWWUGO171YFugrU0ksSC6CaWnl4XzwP6mNjnnDh4hfFGRyYbEXwryGwLsEp" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#usersTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": false,
+                "lengthChange": false,
+
+
+            });
+        });
+
+    </script>
+}

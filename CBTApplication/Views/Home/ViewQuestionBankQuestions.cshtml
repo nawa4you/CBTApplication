@@ -1,0 +1,63 @@
+﻿@model CBTApplication.Models.QuestionBank
+@{
+    ViewData["Title"] = "Questions in " + Model.Name;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Questions in: @Model.Name</h2>
+        <div>
+            <a asp-action="AddQuestionsToBank" asp-route-questionBankId="@Model.Id" class="btn btn-dark">
+                <i class="bi bi-plus"></i> Add Questions
+            </a>
+            <a asp-action="ManageQuestionBanks" class="btn btn-outline-dark">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="list-group">
+        @foreach (var question in Model.Questions.OrderBy(q => q.QuestionNumber))
+        {
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Question #@question.QuestionNumber</h5>
+                    <div>
+                        <form asp-action="DeleteQuestionFromBank" method="post" class="d-inline" 
+                              onsubmit="return confirm('Are you sure you want to delete this question?')">
+                            <input type="hidden" name="questionId" value="@question.Id" />
+                            <input type="hidden" name="questionBankId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="">Delete</i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <p class="mb-1">@question.QuestionText</p>
+                <div class="small text-muted">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>A)</strong> @question.OptionA<br/>
+                            <strong>B)</strong> @question.OptionB
+                        </div>
+                        <div class="col-md-6">
+                            <strong>C)</strong> @question.OptionC<br/>
+                            <strong>D)</strong> @question.OptionD
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <strong>Correct Answer:</strong> Option @question.CorrectOption
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Questions.Any())
+    {
+        <div class="alert alert-info mt-3">
+            <i class="bi bi-info-circle"></i> No questions found in this question bank. 
+            <a asp-action="AddQuestionsToBank" asp-route-questionBankId="@Model.Id" class="alert-link">Add your first question</a>
+        </div>
+    }
+</div>

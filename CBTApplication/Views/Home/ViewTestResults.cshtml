@@ -1,0 +1,37 @@
+﻿@model CBTApplication.Controllers.HomeController.AdminViewTestResultsViewModel
+@{
+    ViewData["Title"] = "Test Results";
+}
+
+@if (Model == null)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> No test results were loaded.
+    </div>
+}
+else
+{
+    <div class="container">
+        <h1>@Model.TestName</h1>
+        <p>Student: @Model.StudentName</p>
+        <p>Score: @Model.Score / @Model.NumberOfQuestions</p>
+
+        @if (Model.Questions?.Any() != true)
+        {
+            <p>No questions found for this test.</p>
+        }
+        else
+        {
+            @foreach (var question in Model.Questions)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>@question.QuestionText</h5>
+                        <p><strong>Your Answer:</strong> @(question.SelectedOption ?? "Not answered")</p>
+                        <p><strong>Correct Answer:</strong> @question.CorrectOption</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}

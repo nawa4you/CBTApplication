@@ -1,0 +1,93 @@
+﻿@model CBTApplication.Models.QuestionViewModel
+@using System.Text.Json;
+
+@{
+    ViewData["Title"] = $"Question {Model.QuestionNumber} of {Model.NumberOfQuestions}";
+    var testName = ViewBag.TestName;
+    var questionCount = ViewBag.QuestionCount;
+}
+
+<div class="container mx-auto p-4 md:p-8 bg-gray-100 rounded-xl shadow-lg mt-10">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">@testName</h1>
+        <h2 class="text-xl text-center text-gray-600 mb-6">Question @Model.QuestionNumber/ @questionCount</h2>
+
+        <form asp-action="BuildTestQuestions" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="TestId" />
+            <input type="hidden" asp-for="QuestionNumber" />
+
+            <div asp-validation-summary="ModelOnly" class="text-red mb-4"></div>
+
+            <div class="mb-4">
+                <label asp-for="QuestionText" class="block text-black text-sm font-semibold mb-2">Question</label>
+                <textarea asp-for="QuestionText" rows="2" class="shadow border rounded w-full py-2 px-3 text-black-50  "></textarea>
+                <span asp-validation-for="QuestionText" class="text-red text-xs mt-1"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label asp-for="OptionA" class="block text-black text-sm font-semibold mb-2">Option A</label>
+                    <input asp-for="OptionA" class="shadow appearance-none border rounded w-full py-2 px-3 text-black  " />
+                    <span asp-validation-for="OptionA" class="text-red text-xs mt-1"></span>
+                </div>
+                <div>
+                    <label asp-for="OptionB" class="block text-black text-sm font-semibold mb-2">Option B</label>
+                    <input asp-for="OptionB" class="shadow appearance-none border rounded w-full py-2 px-3 text-black  " />
+                    <span asp-validation-for="OptionB" class="text-red text-xs mt-1"></span>
+                </div>
+                <div>
+                    <label asp-for="OptionC" class="block text-black text-sm font-semibold mb-2">Option C</label>
+                    <input asp-for="OptionC" class="shadow appearance-none border rounded w-full py-2 px-3 text-black  " />
+                    <span asp-validation-for="OptionC" class="text-red text-xs mt-1"></span>
+                </div>
+                <div>
+                    <label asp-for="OptionD" class="block text-black text-sm font-semibold mb-2">Option D</label>
+                    <input asp-for="OptionD" class="shadow appearance-none border rounded w-full py-2 px-3 text-black  " />
+                    <span asp-validation-for="OptionD" class="text-red text-xs mt-1"></span>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label asp-for="CorrectOption" class="block text-black text-sm font-semibold mb-2">Correct Option (A, B, C, D)</label>
+                <select asp-for="CorrectOption" class="shadow border rounded w-full py-2 px-3 text-black  ">
+                    <option value="">-- Select Correct Option --</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+                <span asp-validation-for="CorrectOption" class="text-red text-xs mt-1"></span>
+            </div>
+
+            <div class="flex justify-between items-center">
+                @if (Model.QuestionNumber > 1)
+                {
+                    <a asp-action="BuildTestQuestions" asp-route-testId="@Model.TestId" asp-route-questionIndex="@(Model.QuestionNumber - 1)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105">
+                        Previous
+                    </a>
+                }
+                else
+                {
+                    <span class="inline-block py-2 px-4"></span>
+                }
+                <button type="submit" class=" text-black-50  py-2 px-4 rounded">
+                    @if (Model.QuestionNumber < Model.NumberOfQuestions)
+                    {
+                        <span>Save & Next</span>
+                    }
+                    else
+                    {
+                        <span>Save & Finish</span>
+                    }
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

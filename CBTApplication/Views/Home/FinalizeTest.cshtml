@@ -1,0 +1,24 @@
+﻿@model CBTApplication.Models.Test
+
+@{
+    ViewData["Title"] = "Finalize Test";
+}
+
+<div class="container mx-auto p-4 md:p-8 bg-gray-100 rounded-xl shadow-lg mt-10">
+    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Finalize Test</h1>
+        <p class="text-xl text-gray-700 mb-6">Test: <strong>@Model.TestName</strong></p>
+        <p class="text-gray-600 mb-8">All questions have been added successfully. Click the button below to activate the test and make it available to users.</p>
+
+        <form asp-action="ActivateTest" method="post">
+            <input type="hidden" name="testId" value="@Model.Id" />
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-150 ease-in-out transform hover:scale-105 shadow-md">
+                Activate Test
+            </button>
+        </form>
+
+        <a asp-action="ManageTests" class="block mt-4 text-blue-500 hover:text-blue-700 font-semibold transition duration-150 ease-in-out">
+            Return to Test Management
+        </a>
+    </div>
+</div>

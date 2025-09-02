@@ -1,0 +1,52 @@
+﻿@model List<CBTApplication.Models.QuestionBank>
+@{
+    ViewData["Title"] = "Manage Question Banks";
+}
+
+<div class="container mt-4">
+    <h2>Manage Question Banks</h2>
+
+    <p>
+        <a asp-action="CreateQuestionBank" class="btn btn-dark me-2">Create New Question Bank</a>
+
+        <a asp-controller="Home" asp-action="CreateTest" class="btn btn-dark me-2">Set Test</a>
+    </p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                @* <th>Course</th> *@
+                <th>Number of Questions</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    @* <td>@(item.Course?.CourseName ?? "N/A")</td> *@
+                    <td>@item.Questions.Count</td>
+                    <td>
+                        @(item.DateCreated != null ?
+                        @item.DateCreated.ToString("yyyy-MM-dd") : "N/A")</td>
+                    <td>
+                        @* <a asp-action="AddQuestionsToBank" asp-route-questionBankId="@item.Id" class="btn btn-sm btn-info">+</a> *@
+                        <a asp-action="ViewQuestionBankQuestions" asp-route-questionBankId="@item.Id" class="btn btn-sm btn-outline-dark">View</a>
+                        @* <a asp-action="EditQuestionBank" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a> *@
+                        @* <a asp-action="DeleteQuestionBank" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No question banks found. <a asp-action="CreateQuestionBank">Create your first question bank</a>.
+        </div>
+    }
+</div>

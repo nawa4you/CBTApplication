@@ -1,0 +1,59 @@
+﻿@using System.Security.Claims
+@{
+    ViewData["Title"] = "CBT Application";
+    bool isAuthenticated = ViewBag.IsAuthenticated ?? false;
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    bool hasApprovedRegistration = ViewBag.HasApprovedRegistration ?? false;
+}
+
+<div class="text-center">
+    <h1 class="display-4">CBT Application</h1>
+    <br />
+    <br />
+    <h1 class="nav-item">
+        <a class="nav-link text-dark btn-info btn-outline-success btn-outline-success" asp-area="" asp-controller="Home" asp-action="Login">Sign In</a>
+    </h1>
+
+
+    @if (!hasApprovedRegistration) {
+
+    @if (User.IsInRole("User"))
+
+    {
+
+       
+        
+                      <a asp-controller="Home" asp-action="TakeTest" class="btn btn-primary">Take Test</a>
+
+
+            <a asp-controller="Home" asp-action="Resuts" class="btn btn-secondary">View Test Results</a>
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+
+
+        <div class="container mt-5 text-center">
+            <h1 class="text-primary">Admin Dashboard</h1>
+            <p class="lead">@ViewBag.Message</p>
+            <div class="mt-4">
+
+                <a asp-controller="Home" asp-action="ManageTests" class="btn btn-info me-2">Set Test Questions</a>
+                <a asp-controller="Home" asp-action="Results" class="btn btn-info me-2">View Scores</a>
+                <a asp-controller="Home" asp-action="ManageUsers" class="btn btn-primary me-2">Manage Users</a>
+
+            </div>
+        </div>
+
+
+    }
+        
+
+
+    }
+        else
+
+        {
+            
+        }
+</div>

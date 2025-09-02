@@ -1,0 +1,83 @@
+﻿@model CBTApplication.Models.AddQuestionViewModel
+@{
+    ViewData["Title"] = "Add Questions to Question Bank";
+    var questionBank = ViewBag.QuestionBank as CBTApplication.Models.QuestionBank;
+}
+
+<div class="container mt-4">
+    <div class="card border-0 shadow">
+        <div class="card-header bg-dark text-white">
+            <h2 class="text-md-center">Set @questionBank?.Name questions</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddQuestionsToBank" asp-route-questionBankId="@questionBank?.Id" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="QuestionText" class="form-label"></label>
+                    <textarea asp-for="QuestionText" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="QuestionText" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="OptionA" class="form-label"></label>
+                            <input asp-for="OptionA" class="form-control" />
+                            <span asp-validation-for="OptionA" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="OptionB" class="form-label"></label>
+                            <input asp-for="OptionB" class="form-control" />
+                            <span asp-validation-for="OptionB" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="OptionC" class="form-label"></label>
+                            <input asp-for="OptionC" class="form-control" />
+                            <span asp-validation-for="OptionC" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="OptionD" class="form-label"></label>
+                            <input asp-for="OptionD" class="form-control" />
+                            <span asp-validation-for="OptionD" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CorrectOption" class="form-label"></label>
+                    <select asp-for="CorrectOption" class="form-select">
+                        <option value="">-- Select Correct Option --</option>
+                        <option value="A">Option A</option>
+                        <option value="B">Option B</option>
+                        <option value="C">Option C</option>
+                        <option value="D">Option D</option>
+                    </select>
+                    <span asp-validation-for="CorrectOption" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2 d-md-block">
+                    <button type="submit" class="btn btn-dark">Add Question</button>
+                    <a asp-action="ManageQuestionBanks" class="btn btn-outline-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

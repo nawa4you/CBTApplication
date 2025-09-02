@@ -1,0 +1,307 @@
+﻿@model CBTApplication.Models.TestWithQuestionsViewModel
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Create New Test" : "Edit Test";
+}
+
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+        }
+
+        .question-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: #4f46e5;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+
+
+<div class="container mx-auto mt-8 p-4">
+    <h1 class="text-4xl font-extrabold text-center mb-10 text-gray-900">
+        @ViewData["Title"]
+    </h1>
+
+    <form asp-action="CreateEditTest" method="post" id="testForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">Test Details</h2>
+
+            <div class="mb-4">
+                <label asp-for="TestName" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                <input asp-for="TestName" class="form-input" />
+                <span asp-validation-for="TestName" class="text-red-500 text-xs italic"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="DurationMinutes" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                <input asp-for="DurationMinutes" type="number" class="form-input" />
+                <span asp-validation-for="DurationMinutes" class="text-red-500 text-xs italic"></span>
+            </div>
+
+            <div class="mb-6 flex items-center">
+                <input asp-for="IsActive" type="checkbox" class="form-checkbox h-5 w-5 text-indigo-600" />
+                <label asp-for="IsActive" class="ml-2 block text-gray-700 text-sm font-bold"></label>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">Questions</h2>
+            <div id="questionsContainer">
+                @for (int i = 0; i < Model.Questions.Count; i++)
+                {
+                    <div class="question-card" data-question-index="@i">
+                        <input type="hidden" asp-for="Questions[i].Id" />
+                        <input type="hidden" asp-for="Questions[i].TestId" />
+                        <input type="hidden" asp-for="Questions[i].IsDeleted" class="is-deleted-input" />
+
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-lg font-semibold text-gray-800">Question @(i + 1)</h3>
+                            <button type="button" class="remove-question-btn btn-danger text-sm px-3 py-1">
+                                Remove
+                            </button>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Questions[i].QuestionText" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <textarea asp-for="Questions[i].QuestionText" class="form-input h-24" placeholder="Enter question text"></textarea>
+                            <span asp-validation-for="Questions[i].QuestionText" class="text-red-500 text-xs italic"></span>
+                        </div>
+
+                        <div class="mb-2">
+                            <label asp-for="Questions[i].OptionA" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <input asp-for="Questions[i].OptionA" type="text" class="form-input" placeholder="Option A" />
+                            <span asp-validation-for="Questions[i].OptionA" class="text-red-500 text-xs italic"></span>
+                        </div>
+                        <div class="mb-2">
+                            <label asp-for="Questions[i].OptionB" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <input asp-for="Questions[i].OptionB" type="text" class="form-input" placeholder="Option B" />
+                            <span asp-validation-for="Questions[i].OptionB" class="text-red-500 text-xs italic"></span>
+                        </div>
+                        <div class="mb-2">
+                            <label asp-for="Questions[i].OptionC" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <input asp-for="Questions[i].OptionC" type="text" class="form-input" placeholder="Option C" />
+                            <span asp-validation-for="Questions[i].OptionC" class="text-red-500 text-xs italic"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label asp-for="Questions[i].OptionD" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <input asp-for="Questions[i].OptionD" type="text" class="form-input" placeholder="Option D" />
+                            <span asp-validation-for="Questions[i].OptionD" class="text-red-500 text-xs italic"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Questions[i].CorrectOption" class="block text-gray-700 text-sm font-bold mb-2"></label>
+                            <select asp-for="Questions[i].CorrectOption" class="form-input">
+                                <option value="">-- Select Correct Option --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                            <span asp-validation-for="Questions[i].CorrectOption" class="text-red-500 text-xs italic"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button type="button" id="addQuestionBtn" class="btn-secondary mt-4">
+                Add New Question
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between mt-8">
+            <button type="submit" class="btn-primary">
+                @((Model.Id == 0) ? "Create Test and Questions" : "Save Changes")
+            </button>
+            <a asp-action="ManageTests" class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-800">
+                Back to Test Management
+            </a>
+        </div>
+    </form>
+
+    <script type="text/template" id="questionTemplate">
+        <div class="question-card" data-question-index="{{index}}">
+            <input type="hidden" name="Questions[{{index}}].Id" value="0" />
+            <input type="hidden" name="Questions[{{index}}].TestId" value="{{testId}}" />
+            <input type="hidden" name="Questions[{{index}}].IsDeleted" value="false" class="is-deleted-input" />
+
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-lg font-semibold text-gray-800">Question {{indexPlusOne}}</h3>
+                <button type="button" class="remove-question-btn btn-danger text-sm px-3 py-1">
+                    Remove
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Question Text</label>
+                <textarea name="Questions[{{index}}].QuestionText" class="form-input h-24" placeholder="Enter question text" required></textarea>
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].QuestionText" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Option A</label>
+                <input name="Questions[{{index}}].OptionA" type="text" class="form-input" placeholder="Option A" required />
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].OptionA" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Option B</label>
+                <input name="Questions[{{index}}].OptionB" type="text" class="form-input" placeholder="Option B" required />
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].OptionB" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Option C</label>
+                <input name="Questions[{{index}}].OptionC" type="text" class="form-input" placeholder="Option C" required />
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].OptionC" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Option D</label>
+                <input name="Questions[{{index}}].OptionD" type="text" class="form-input" placeholder="Option D" required />
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].OptionD" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Correct Option</label>
+                <select name="Questions[{{index}}].CorrectOption" class="form-input" required>
+                    <option value="">-- Select --</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+                <span class="field-validation-valid text-red-500 text-xs italic" data-valmsg-for="Questions[{{index}}].CorrectOption" data-valmsg-replace="true"></span>
+            </div>
+        </div>
+    </script>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const questionsContainer = document.getElementById('questionsContainer');
+            const addQuestionBtn = document.getElementById('addQuestionBtn');
+            const testForm = document.getElementById('testForm');
+            const testId = document.querySelector('input[name="Id"]')?.value || '0';
+
+            // Add new question
+            addQuestionBtn.addEventListener('click', function() {
+                const index = document.querySelectorAll('.question-card').length;
+                const template = document.getElementById('questionTemplate').innerHTML
+                    .replace(/\{\{index\}\}/g, index)
+                    .replace(/\{\{indexPlusOne\}\}/g, index + 1)
+                    .replace(/\{\{testId\}\}/g, testId);
+
+                const div = document.createElement('div');
+                div.innerHTML = template.trim();
+                const newQuestion = div.firstChild;
+                
+                questionsContainer.appendChild(newQuestion);
+                
+                // Re-parse validation for new elements
+                const form = $(testForm);
+                form.removeData('validator');
+                form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse(form);
+            });
+
+            // Remove question (event delegation)
+            questionsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-question-btn')) {
+                    const questionCard = e.target.closest('.question-card');
+                    if (questionCard) {
+                        const isDeletedInput = questionCard.querySelector('.is-deleted-input');
+                        const questionIdInput = questionCard.querySelector('input[name*="Id"]');
+                        
+                        // For existing questions (ID > 0), mark as deleted
+                        if (isDeletedInput && questionIdInput && questionIdInput.value !== '0') {
+                            isDeletedInput.value = "true";
+                            questionCard.style.display = 'none';
+                        } else {
+                            // For new questions, remove completely
+                            questionCard.remove();
+                        }
+                        
+                        // Re-index remaining questions
+                        const remainingCards = questionsContainer.querySelectorAll('.question-card:not([style*="display: none"])');
+                        remainingCards.forEach((card, index) => {
+                            card.setAttribute('data-question-index', index);
+                            card.querySelector('h3').textContent = `Question ${index + 1}`;
+                            
+                            // Update all input names
+                            card.querySelectorAll('[name]').forEach(input => {
+                                const name = input.getAttribute('name');
+                                if (name && name.includes('Questions[')) {
+                                    const newName = name.replace(/Questions\[\d+\]/, `Questions[${index}]`);
+                                    input.setAttribute('name', newName);
+                                    input.setAttribute('id', newName.replace(/\./g, '_'));
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+
+            // Ensure proper indexing before form submission
+            testForm.addEventListener('submit', function(e) {
+                // Final re-index before submission
+                const remainingCards = questionsContainer.querySelectorAll('.question-card:not([style*="display: none"])');
+                remainingCards.forEach((card, index) => {
+                    card.setAttribute('data-question-index', index);
+                });
+
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = 'Processing...';
+            });
+        });
+    </script>
+}
